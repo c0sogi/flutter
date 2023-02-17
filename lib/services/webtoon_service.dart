@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart';
 
-class WebtoonAPI {
-  static final WebtoonAPI _instance = WebtoonAPI._createSingleton();
-  WebtoonAPI._createSingleton();
-  factory WebtoonAPI({required String scheme, required String host}) {
+class ApiFetcher {
+  static final ApiFetcher _instance = ApiFetcher._createSingleton();
+  ApiFetcher._createSingleton();
+  factory ApiFetcher({required String scheme, required String host}) {
     _instance.host = host;
     _instance.scheme = scheme;
     return _instance;
@@ -16,8 +16,8 @@ class WebtoonAPI {
       required Function({required Map<String, dynamic> json}) fromJson}) async {
     final Response res = await get(
       Uri(
-        scheme: WebtoonAPI._instance.scheme,
-        host: WebtoonAPI._instance.host,
+        scheme: ApiFetcher._instance.scheme,
+        host: ApiFetcher._instance.host,
         path: path,
       ),
     );
@@ -33,8 +33,8 @@ class WebtoonAPI {
       required Function({required Map<String, dynamic> json}) fromJson}) async {
     final Response res = await get(
       Uri(
-        scheme: WebtoonAPI._instance.scheme,
-        host: WebtoonAPI._instance.host,
+        scheme: ApiFetcher._instance.scheme,
+        host: ApiFetcher._instance.host,
         path: path,
       ),
     );

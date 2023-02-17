@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'widgets/pomodoro_widget.dart' as pmdr;
+import 'pomodoro_widget.dart' as pmdr;
 // import 'package:flutter/src/widgets/framework.dart';
 // import 'package:flutter/src/widgets/placeholder.dart';
 

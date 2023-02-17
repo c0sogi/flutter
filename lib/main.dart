@@ -47,21 +47,21 @@ class App extends StatelessWidget {
           color: Color(0xFFF4EDDB),
           size: 40,
         ),
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(
+        textTheme: TextTheme(
+          displayLarge: const TextStyle(
             color: Color(0xfff4eddb),
             fontSize: 24,
             fontWeight: FontWeight.w600,
           ),
           displayMedium: TextStyle(
-            color: Color(0xff232b55),
+            color: const Color(0xfff4eddb).withOpacity(0.9),
             fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
           displaySmall: TextStyle(
-            color: Color(0xff232b55),
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
+            color: const Color(0xfff4eddb).withOpacity(0.6),
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
           ),
         ),
         cardTheme: const CardTheme(
