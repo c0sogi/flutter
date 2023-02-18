@@ -1,5 +1,10 @@
-import 'dart:convert';
-import 'package:http/http.dart';
+import 'dart:convert' show jsonDecode;
+import 'package:http/http.dart' show Response, get;
+
+ApiFetcher apiFetcher = ApiFetcher(
+  scheme: "https",
+  host: "webtoon-crawler.nomadcoders.workers.dev",
+); // singleton instance of ApiFecher
 
 class ApiFetcher {
   static final ApiFetcher _instance = ApiFetcher._createSingleton();

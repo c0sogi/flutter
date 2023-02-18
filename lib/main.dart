@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_web/widgets/webtoon_widget.dart';
+import 'package:flutter_web/widgets/webtoon_home.dart';
+import 'package:webview_flutter_web/webview_flutter_web.dart'
+    show WebWebViewPlatform;
+import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart'
+    show WebViewPlatform;
 
 void main(List<String> args) {
+  WebViewPlatform.instance = WebWebViewPlatform();
   runApp(const App());
 }
 
@@ -13,25 +18,25 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE7626C),
-        // colorScheme: const ColorScheme(
-        //   brightness: Brightness.light,
-        //   primary: Color(0xFF6750a4),
-        //   onPrimary: Color(0xFF22005d),
-        //   secondary: Color(0xFF7d5260),
-        //   onSecondary: Color(0xFF31101d),
-        //   error: Color(0xFFba1b1b),
-        //   onError: Color(0xFF410001),
-        //   background: Color(0xFFE7626C),
-        //   onBackground: Color(0xFF31101d),
-        //   surface: Color(0xFF4DB6AC),
-        //   onSurface: Color(0xFF00796B),
-        // ),
+        colorScheme: const ColorScheme(
+          brightness: Brightness.light,
+          primary: Color(0xFF6750a4),
+          onPrimary: Color(0xFF22005d),
+          secondary: Color(0xFF7d5260),
+          onSecondary: Color(0xFF31101d),
+          error: Color(0xFFba1b1b),
+          onError: Color(0xFF410001),
+          background: Color(0xFFE7626C),
+          onBackground: Color(0xFF31101d),
+          surface: Color(0xFF4DB6AC),
+          onSurface: Color(0xFF00796B),
+        ),
         appBarTheme: const AppBarTheme(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadiusDirectional.vertical(
-              bottom: Radius.circular(20),
-            ),
-          ),
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadiusDirectional.vertical(
+          //     bottom: Radius.circular(20),
+          //   ),
+          // ),
           toolbarHeight: 60,
           centerTitle: true,
           titleTextStyle: TextStyle(
@@ -63,9 +68,14 @@ class App extends StatelessWidget {
             fontSize: 12,
             fontWeight: FontWeight.w400,
           ),
+          bodyMedium: const TextStyle(
+            color: Color(0xFFE7626C),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         cardTheme: const CardTheme(
-          color: Color(0xfff4eddb),
+          color: Color(0xaaf4eddb),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(50))),
         ),
