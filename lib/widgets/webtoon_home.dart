@@ -1,13 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_web/models/webtoon_model.dart';
-import 'package:flutter_web/services/webtoon_service.dart';
-import 'package:fluent_appbar/fluent_appbar.dart'; // fluent_appbar: ^2.0.0
-
-ApiFetcher singletonApiFetcher = ApiFetcher(
-  scheme: "https",
-  host: "webtoon-crawler.nomadcoders.workers.dev",
-);
+import 'package:fluent_appbar/fluent_appbar.dart' show FluentAppBar;
+import '/models/webtoon_model.dart';
+import '/utils/webtoon_api_fetcher.dart' show apiFetcher;
+import '/utils/webtoon_build_widget_by_future.dart' show buildWidgetByFuture;
+import 'webtoon_webview.dart' show MyWebView;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -19,8 +15,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   static final ScrollController scrollController = ScrollController();
   static final Future<List<WebtoonIndex>> webtoonIndexesFuture =
-      singletonApiFetcher.fetchList(
-          path: "today", fromJson: WebtoonIndex.fromJson);
+      apiFetcher.fetchList(path: "today", fromJson: WebtoonIndex.fromJson);
 
   Widget indexWidgetMaker(
       {List<WebtoonIndex>? data, required BuildContext context}) {
@@ -85,7 +80,7 @@ class SingleToon extends StatelessWidget {
           MaterialPageRoute(
             fullscreenDialog: true,
             builder: (context) => ToonDetail(
-              id: webtoonIndex.id,
+              webtoonId: webtoonIndex.id,
               toonThumb: toonThumb,
             ),
           ),
@@ -139,60 +134,105 @@ class ToonThumb extends StatelessWidget {
 }
 
 class ToonDetail extends StatelessWidget {
-  ToonDetail({super.key, required this.id, required this.toonThumb}) {
-    webtoonDetailFuture = singletonApiFetcher.fetch<WebtoonDetail>(
-        path: id, fromJson: WebtoonDetail.fromJson);
-    webtoonEpisodesFuture = singletonApiFetcher.fetchList(
-        path: "$id/episodes", fromJson: WebtoonEpisode.fromJson);
+  ToonDetail({super.key, required this.webtoonId, required this.toonThumb}) {
+    webtoonDetailFuture = apiFetcher.fetch<WebtoonDetail>(
+        path: webtoonId, fromJson: WebtoonDetail.fromJson);
+    webtoonEpisodesFuture = apiFetcher.fetchList(
+        path: "$webtoonId/episodes", fromJson: WebtoonEpisode.fromJson);
   }
-  final String id;
+  final String webtoonId;
   final ToonThumb toonThumb;
   late final Future<WebtoonDetail> webtoonDetailFuture;
   late final Future<List<WebtoonEpisode>> webtoonEpisodesFuture;
-
-  Widget episodeWidgetMaker(
-      {List<WebtoonEpisode>? data, required BuildContext context}) {
-    if (data == null) {
-      throw Exception("No data available");
-    }
-    return IntrinsicHeight(
-      child: Column(
-        children: [for (var episode in data) Text(episode.title.toString())],
-      ),
-    );
-  }
 
   Widget detailWidgetMaker(
       {WebtoonDetail? data, required BuildContext context}) {
     if (data == null) {
       throw Exception("No data available");
     }
-    List<Widget> items = [
-      Text(
-        data.about,
-        style: Theme.of(context).textTheme.displayMedium,
-      ),
-      Text(
-        "${data.genre} / ${data.age}",
-        style: Theme.of(context).textTheme.displaySmall,
-      ),
-      buildWidgetByFuture(
-        future: webtoonEpisodesFuture,
-        widgetMaker: episodeWidgetMaker,
-      ),
-    ];
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(50),
+          child: Column(
+            children: [
+              Text(
+                data.about,
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+              Text(
+                "${data.genre} / ${data.age}",
+                style: Theme.of(context).textTheme.displaySmall,
+              ),
+            ],
+          ),
+        ),
+        buildWidgetByFuture(
+          future: webtoonEpisodesFuture,
+          widgetMaker: episodeWidgetMaker,
+        ),
+      ],
+    );
+  }
 
-    return Flexible(
-      flex: 1,
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Center(
-            child: items[index],
-          );
-        },
-      ),
+  Widget episodeWidgetMaker(
+      {List<WebtoonEpisode>? data, required BuildContext context}) {
+    if (data == null) {
+      throw Exception("No data available");
+    }
+    return Column(
+      children: [
+        for (var episode in data)
+          GestureDetector(
+            onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: false,
+                  builder: (context) => MyWebView(
+                    url:
+                        "https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=${episode.id}",
+                  ),
+                ),
+              ),
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 2,
+              ),
+              width: double.infinity,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                      spreadRadius: 5,
+                      blurRadius: 5,
+                      color: Colors.black.withOpacity(0.1))
+                ],
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(20),
+                ),
+                color: Theme.of(context).cardTheme.color,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    episode.title.toString(),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: Theme.of(context).colorScheme.background,
+                  )
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -200,42 +240,21 @@ class ToonDetail extends StatelessWidget {
   Scaffold build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-              height: MediaQuery.of(context).size.height / 2, child: toonThumb),
-          buildWidgetByFuture(
-            future: webtoonDetailFuture,
-            widgetMaker: detailWidgetMaker,
-          )
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 2,
+              child: toonThumb,
+            ),
+            buildWidgetByFuture(
+              future: webtoonDetailFuture,
+              widgetMaker: detailWidgetMaker,
+            )
+          ],
+        ),
       ),
     );
   }
-}
-
-Widget viewLoading() {
-  return const Center(
-    child: SizedBox(
-      height: 50,
-      width: 50,
-      child: CircularProgressIndicator(),
-    ),
-  );
-}
-
-Widget buildWidgetByFuture<T>(
-    {required Future<T> future,
-    required Widget Function({T? data, required BuildContext context})
-        widgetMaker,
-    BuildContext? context}) {
-  return FutureBuilder<T>(
-    future: future,
-    builder: (BuildContext context, snapshot) {
-      return snapshot.hasData
-          ? widgetMaker(data: snapshot.data, context: context)
-          : viewLoading();
-    },
-  );
 }
